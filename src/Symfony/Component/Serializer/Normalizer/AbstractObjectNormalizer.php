@@ -625,6 +625,7 @@ abstract class AbstractObjectNormalizer extends AbstractNormalizer
      */
     private function validateAndDenormalize(Type $type, string $currentClass, string $attribute, mixed $data, ?string $format, array $context): mixed
     {
+        $e = null;
         $expectedTypes = [];
         $extraAttributesException = null;
         $missingConstructorArgumentsException = null;
@@ -822,6 +823,10 @@ abstract class AbstractObjectNormalizer extends AbstractNormalizer
 
         if ($missingConstructorArgumentsException) {
             throw $missingConstructorArgumentsException;
+        }
+
+        if ($e && $type instanceof UnionType && !$type->getBaseType() instanceof UnionType) {
+            throw $e;
         }
 
         if ($context[self::DISABLE_TYPE_ENFORCEMENT] ?? $this->defaultContext[self::DISABLE_TYPE_ENFORCEMENT] ?? false) {
